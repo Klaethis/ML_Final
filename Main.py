@@ -1,5 +1,6 @@
 from mlxtend.data import loadlocal_mnist
 from MnistNumber import MnistNumber
+import time
 
 def main_task():
     # Grab the mnist training data
@@ -21,7 +22,7 @@ def main_task():
     testing_data = []
     misses = []
     num_to_check = len(mnist_testing_img_data)
-    
+    start = time.time()
     for num in range(num_to_check):
         # Create a MnistNumber using the current testing number
         testing_data.append(MnistNumber(mnist_testing_lbl_data[num]))
@@ -34,9 +35,9 @@ def main_task():
                 testing_data[num].guess = obj.img_lbl
         if (testing_data[num].guess != testing_data[num].img_lbl):
             misses.append(testing_data[num])
-    
+    stop = time.time()
     # Print the Error rate
-    print(f"Total checked={num_to_check}; Missed={len(misses)}; Error Rate={len(misses)/num_to_check*100}%")
+    print(f"Total checked={num_to_check}; Missed={len(misses)}; Error Rate={len(misses)/num_to_check*100}%; Time each check={(stop-start)/num_to_check} s")
 
     # Uncomment the following two lines if you want to see what the misses looked like
     # for obj in misses:
