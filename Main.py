@@ -14,6 +14,7 @@ def main_task():
     # Average all the training data by numbers
     training_data = [MnistNumber(i) for i in range(10)]
 
+
     MAX_READ_NUMBERS = len(mnist_training_img_data)
 
     for obj in training_data:
@@ -21,11 +22,17 @@ def main_task():
             if obj.img_lbl == mnist_training_lbl_data[num]:
                 obj.add_img(mnist_training_img_data[num])
 
+    # Average training data by pixels
+    for obj in training_data:
+        print(f"{obj.img_lbl} = {obj.pixel_count}")
+
     # Go through each number in the testing data, and try them against the training data
     num_to_check = len(mnist_testing_img_data)
     testing_data = []
     misses = []
     hits = []
+    missesPixel = []
+    hitsPixel = []
 
     start = time.time()
     for num in range(num_to_check):
@@ -35,16 +42,26 @@ def main_task():
 
         # Guess the lowest energy difference of the testing number and the training data
         testing_data[num].guess = 0
+        testing_data[num].pixelGuess = 0
         for obj in training_data:
             if (obj.get_energy_diff(testing_data[num]) < training_data[testing_data[num].guess].get_energy_diff(testing_data[num])):
                 testing_data[num].guess = obj.img_lbl
+            if (obj.get_pixel_diff(testing_data[num]) < training_data[testing_data[num].pixelGuess].get_pixel_diff(testing_data[num])):
+                testing_data[num].pixelGuess = obj.img_lbl
+        
         if (testing_data[num].guess != testing_data[num].img_lbl):
             misses.append(testing_data[num])
         else:
             hits.append(testing_data[num])
+
+        if (testing_data[num].pixelGuess != testing_data[num].img_lbl):
+            missesPixel.append(testing_data[num])
+        else:
+            hitsPixel.append(testing_data[num])
     stop = time.time()
 
     # Print the Error rate
+    print(f"Matrix Average Method")
     print(f"Total checked={num_to_check}; Missed={len(misses)}; Error Rate={round(len(misses)/num_to_check*100, 2)}%; Total time={round(stop-start, 2)}s; Time each check={round((stop-start)/num_to_check*1000,2)}ms")
     
     # Print miss table
@@ -59,6 +76,24 @@ def main_task():
         grouped_hits[num.img_lbl] += 1
     for num in range(len(grouped_hits)):
         print(f"{num}: Hits: {grouped_hits[num]}\tMisses:{np.array(grouped_misses[num]).sum()}\tTotal: {(grouped_hits[num]+np.array(grouped_misses[num]).sum())}\tError:{np.round(np.array(grouped_misses[num]).sum()/(grouped_hits[num]+np.array(grouped_misses[num]).sum()),4)*100}%")
+
+    # Do it for pixels
+    print(f"\nPixel Average Method")
+    print(f"Total checked={num_to_check}; Missed={len(missesPixel)}; Error Rate={round(len(missesPixel)/num_to_check*100, 2)}%; Total time={round(stop-start, 2)}s; Time each check={round((stop-start)/num_to_check*1000,2)}ms")
+
+
+# Print miss table for pixels
+    grouped_missesPixel = [[0 for i in range(10)] for j in range(10)]
+    for num in missesPixel:
+        grouped_missesPixel[num.img_lbl][num.pixelGuess] += 1
+    for num in grouped_missesPixel:
+        print(f"{num} : {np.array(num).sum()}")
+
+    grouped_hitsPixel = [0 for i in range(10)]
+    for num in hitsPixel:
+        grouped_hitsPixel[num.img_lbl] += 1
+    for num in range(len(grouped_hitsPixel)):
+        print(f"{num}: Hits: {grouped_hitsPixel[num]}\tMisses:{np.array(grouped_missesPixel[num]).sum()}\tTotal: {(grouped_hitsPixel[num]+np.array(grouped_missesPixel[num]).sum())}\tError:{np.round(np.array(grouped_missesPixel[num]).sum()/(grouped_hitsPixel[num]+np.array(grouped_missesPixel[num]).sum()),4)*100}%")
 
     # Uncomment the following two lines if you want to see what the misses looked like
     # for obj in misses:

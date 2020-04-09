@@ -1,4 +1,5 @@
 .vscode/
 __pycache__/
-Abstract.docx
 images/
+.vs/
+Abstract.docx
