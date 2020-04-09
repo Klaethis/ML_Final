@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+import pathlib
 import numpy as np
 
 class MnistNumber:
@@ -31,12 +32,19 @@ class MnistNumber:
         return (self.img_lbl == num)
 
     # Show a plot of this number
-    def plot(self):
+    def plot(self, folder=""):
         if self.guess == -1:
             plt.title(f"Image of {self.img_lbl}")
         else:
             plt.title(f"Image of {self.img_lbl}; Guess {self.guess}")
+
         plt.imshow(self.img_data)
-        plt.show()
+
+        if folder:
+            pathlib.Path(f"./images/{folder}").mkdir(parents=True, exist_ok=True)
+            plt.savefig(f"./images/{folder}/{self.img_lbl}")
+        else:
+            plt.show()
+
         plt.cla()
         plt.clf()

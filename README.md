@@ -9,3 +9,4 @@ Python 3.7.2
 - mlxtend
 - numpy
 - matplotlib
+- pathlib
