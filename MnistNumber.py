@@ -37,9 +37,6 @@ class MnistNumber:
     def get_pixel_diff(self, com_num):
         return (((com_num.pixel_count - self.pixel_count)**2)**(1/2))
 
-    def get_pixel_diff(self, com_num):
-        return (((com_num.pixel_count - self.pixel_count)**2)**(1/2))
-
     # Check to see if this number is the same as the given number
     def check_num(self, num):
         return (self.img_lbl == num)
