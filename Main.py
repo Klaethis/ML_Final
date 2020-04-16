@@ -7,7 +7,7 @@ MAX_READ_NUMBERS = 500
 
 def main_task():
     # Grab the mnist training data
-    mnist_training_img_data, mnist_training_lbl_data = loadlocal_mnist(images_path="./Training_Data/train-images.idx3-ubyte", labels_path="./Training_data/train-labels.idx1-ubyte")
+    mnist_training_img_data, mnist_training_lbl_data = loadlocal_mnist(images_path="./Training_Data/train-images.idx3-ubyte", labels_path="./Training_Data/train-labels.idx1-ubyte")
     # Grab the mnist testing data
     mnist_testing_img_data, mnist_testing_lbl_data = loadlocal_mnist(images_path="./Testing_Data/t10k-images.idx3-ubyte", labels_path="./Testing_Data/t10k-labels.idx1-ubyte")
 
