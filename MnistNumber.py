@@ -10,7 +10,9 @@ class MnistNumber:
     num_img = 0
     guess = -1
     pixelGuess = -1
+    lmsGuess = -1
     threshhold = 80
+    lms_data = np.zeros([0,28**2])
     
     # Initializes using the given number and image array
     def __init__(self, number, img = None):
@@ -37,9 +39,6 @@ class MnistNumber:
     def get_pixel_diff(self, com_num):
         return (((com_num.pixel_count - self.pixel_count)**2)**(1/2))
 
-    def get_pixel_diff(self, com_num):
-        return (((com_num.pixel_count - self.pixel_count)**2)**(1/2))
-
     # Check to see if this number is the same as the given number
     def check_num(self, num):
         return (self.img_lbl == num)
@@ -61,3 +60,11 @@ class MnistNumber:
 
         plt.cla()
         plt.clf()
+
+    def plotLMS(self):
+        plt.figure(self.img_lbl)
+        plt.plot(list(range(0, 28**2)), self.lms_data)
+        plt.show()
+
+    #def getOutputY(self):
+

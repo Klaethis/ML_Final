@@ -26,6 +26,21 @@ def main_task():
     for obj in training_data:
         print(f"{obj.img_lbl} = {obj.pixel_count}")
 
+    # Create the Least Means Squared Graphs for each number from the average matrices
+    X = np.zeros([1,28 ** 2])
+    for obj in training_data:
+        obj.lms_data = obj.img_data.flatten()
+        X = np.vstack((X, obj.lms_data)) #this adds the row to it
+    X = np.delete(X, 0, 0) #remove the first row because it's 0's
+    onesLeft = np.ones([10, 1])
+    X = np.hstack((onesLeft, X))
+    Y = np.identity(10) #identity matrix of 10 for numbers 0-9 and identity to show the classification
+    Bhat, residuals, rank, s = np.linalg.lstsq(np.transpose(X).dot(X), np.transpose(X).dot(Y))
+    #Yhat = X.dot(Bhat)
+    
+
+
+
     # Go through each number in the testing data, and try them against the training data
     num_to_check = len(mnist_testing_img_data)
     testing_data = []
@@ -33,6 +48,8 @@ def main_task():
     hits = []
     missesPixel = []
     hitsPixel = []
+    missesLMS = []
+    hitsLMS = []
 
     start = time.time()
     for num in range(num_to_check):
@@ -43,12 +60,31 @@ def main_task():
         # Guess the lowest energy difference of the testing number and the training data
         testing_data[num].guess = 0
         testing_data[num].pixelGuess = 0
+        testing_data[num].lmsGuess = 0
+        maxY = 0
+        lmsGuess = 0
+        counter = 0
         for obj in training_data:
             if (obj.get_energy_diff(testing_data[num]) < training_data[testing_data[num].guess].get_energy_diff(testing_data[num])):
                 testing_data[num].guess = obj.img_lbl
             if (obj.get_pixel_diff(testing_data[num]) < training_data[testing_data[num].pixelGuess].get_pixel_diff(testing_data[num])):
                 testing_data[num].pixelGuess = obj.img_lbl
-        
+
+        testing_data[num].lms_data = testing_data[num].img_data.flatten()
+        testRow = testing_data[num].lms_data
+        testRow1 = [1]
+        testRow = np.hstack((testRow1, testRow))
+        yHat = testRow.dot(Bhat)
+
+        for yVal in yHat:
+            if (yVal > maxY):
+                 maxY = yVal #get the largest value in the yArray so that we know the guess
+                 lmsGuess = counter # this is the spot in the array (the actual guess)
+            counter = counter + 1
+        testing_data[num].lmsGuess = lmsGuess   
+
+
+
         if (testing_data[num].guess != testing_data[num].img_lbl):
             misses.append(testing_data[num])
         else:
@@ -58,6 +94,11 @@ def main_task():
             missesPixel.append(testing_data[num])
         else:
             hitsPixel.append(testing_data[num])
+
+        if (testing_data[num].lmsGuess != testing_data[num].img_lbl):
+            missesLMS.append(testing_data[num])
+        else:
+            hitsLMS.append(testing_data[num])
     stop = time.time()
 
     # Print the Error rate
@@ -77,7 +118,8 @@ def main_task():
     for num in range(len(grouped_hits)):
         print(f"{num}: Hits: {grouped_hits[num]}\tMisses:{np.array(grouped_misses[num]).sum()}\tTotal: {(grouped_hits[num]+np.array(grouped_misses[num]).sum())}\tError:{np.round(np.array(grouped_misses[num]).sum()/(grouped_hits[num]+np.array(grouped_misses[num]).sum()),4)*100}%")
 
-    # Do it for pixels
+
+# Do it for pixels
     print(f"\nPixel Average Method")
     print(f"Total checked={num_to_check}; Missed={len(missesPixel)}; Error Rate={round(len(missesPixel)/num_to_check*100, 2)}%; Total time={round(stop-start, 2)}s; Time each check={round((stop-start)/num_to_check*1000,2)}ms")
 
@@ -94,6 +136,28 @@ def main_task():
         grouped_hitsPixel[num.img_lbl] += 1
     for num in range(len(grouped_hitsPixel)):
         print(f"{num}: Hits: {grouped_hitsPixel[num]}\tMisses:{np.array(grouped_missesPixel[num]).sum()}\tTotal: {(grouped_hitsPixel[num]+np.array(grouped_missesPixel[num]).sum())}\tError:{np.round(np.array(grouped_missesPixel[num]).sum()/(grouped_hitsPixel[num]+np.array(grouped_missesPixel[num]).sum()),4)*100}%")
+
+
+
+    # Do it for LMS
+    print(f"\nLinear Regression Method")
+    print(f"Total checked={num_to_check}; Missed={len(missesLMS)}; Error Rate={round(len(missesLMS)/num_to_check*100, 2)}%; Total time={round(stop-start, 2)}s; Time each check={round((stop-start)/num_to_check*1000,2)}ms")
+
+
+    # Print miss table for LMS
+    grouped_missesLMS = [[0 for i in range(10)] for j in range(10)]
+    for num in missesLMS:
+        grouped_missesLMS[num.img_lbl][num.lmsGuess] += 1
+    for num in grouped_missesLMS:
+        print(f"{num} : {np.array(num).sum()}")
+
+    grouped_hitsLMS = [0 for i in range(10)]
+    for num in hitsLMS:
+        grouped_hitsLMS[num.img_lbl] += 1
+    for num in range(len(grouped_hitsLMS)):
+        print(f"{num}: Hits: {grouped_hitsLMS[num]}\tMisses:{np.array(grouped_missesLMS[num]).sum()}\tTotal: {(grouped_hitsLMS[num]+np.array(grouped_missesLMS[num]).sum())}\tError:{np.round(np.array(grouped_missesLMS[num]).sum()/(grouped_hitsLMS[num]+np.array(grouped_missesLMS[num]).sum()),4)*100}%")
+
+
 
     # Uncomment the following two lines if you want to see what the misses looked like
     # for obj in misses:
