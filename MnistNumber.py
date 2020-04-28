@@ -10,7 +10,10 @@ class MnistNumber:
     num_img = 0
     guess = -1
     pixelGuess = -1
+    lmsGuess = -1
+    voterGuess = -1
     threshhold = 80
+    lms_data = np.zeros([0,28**2])
     
     # Initializes using the given number and image array
     def __init__(self, number, img = None):
@@ -58,3 +61,11 @@ class MnistNumber:
 
         plt.cla()
         plt.clf()
+
+    def plotLMS(self):
+        plt.figure(self.img_lbl)
+        plt.plot(list(range(0, 28**2)), self.lms_data)
+        plt.show()
+
+    #def getOutputY(self):
+
