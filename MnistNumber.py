@@ -11,6 +11,7 @@ class MnistNumber:
     guess = -1
     pixelGuess = -1
     lmsGuess = -1
+    voterGuess = -1
     threshhold = 80
     lms_data = np.zeros([0,28**2])
     
